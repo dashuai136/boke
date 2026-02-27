@@ -10,8 +10,7 @@
     <main class="container">
       <h1>AdMob eCPM 分析（按国家 / 广告位）</h1>
       <p class="subtitle">
-        上传 AdMob 后台导出的 Excel（按国家、广告单元）后，系统会自动解析广告单元命名规范：
-        <code>产品名_广告位_广告类型_出价高低类型</code>，并按 eCPM 从高到低展示。
+        这是纯前端页面：可直接双击 <code>index.html</code> 使用（无需 python3 / Node / 后端服务）。
       </p>
 
       <section class="panel upload-panel">
@@ -19,7 +18,7 @@
         <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" disabled />
         <span id="fileName" class="file-name">未选择文件</span>
       </section>
-      <p id="libStatus" class="lib-status">正在加载 Excel 解析库...</p>
+      <p id="libStatus" class="lib-status">正在初始化 Excel 解析库...</p>
 
       <section class="panel controls-panel" id="controlsPanel" hidden>
         <div class="control-group">
