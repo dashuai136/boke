@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AdMob 广告单元国家/广告位分析工具</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>AdMob eCPM 分析（按国家 / 广告位）</h1>
+      <p class="subtitle">
+        这是纯前端页面：可直接双击 <code>index.html</code> 使用。若 Excel 库加载失败，仍可直接上传 CSV 分析。
+      </p>
+
+      <section class="panel upload-panel">
+        <label for="fileInput" class="btn primary">选择 Excel/CSV 文件</label>
+        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+        <span id="fileName" class="file-name">未选择文件</span>
+      </section>
+
+      <section class="lib-panel">
+        <p id="libStatus" class="lib-status">正在初始化 Excel 解析库...</p>
+        <button id="retryLibBtn" class="btn" hidden>重试加载 Excel 解析库</button>
+      </section>
+
+      <section class="panel controls-panel" id="controlsPanel" hidden>
+        <div class="control-group">
+          <label for="countryFilter">国家筛选</label>
+          <select id="countryFilter"></select>
+        </div>
+        <div class="control-group">
+          <label for="placementFilter">广告位筛选</label>
+          <select id="placementFilter"></select>
+        </div>
+        <div class="control-group buttons">
+          <button id="exportCsvBtn" class="btn">导出当前视图 CSV</button>
+          <button id="exportJsonBtn" class="btn">导出结构化 JSON</button>
+        </div>
+      </section>
+
+      <section class="panel" id="summaryPanel" hidden>
+        <h2>汇总信息</h2>
+        <div id="summary"></div>
+      </section>
+
+      <section class="panel" id="resultPanel" hidden>
+        <h2>分析结果</h2>
+        <div class="table-wrapper">
+          <table id="resultTable">
+            <thead>
+              <tr>
+                <th>国家</th>
+                <th>广告位</th>
+                <th>广告单元名称</th>
+                <th>产品名</th>
+                <th>广告类型</th>
+                <th>出价类型</th>
+                <th>eCPM</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
