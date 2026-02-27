@@ -1,6 +1,7 @@
 const state = {
   allRows: [],
   filteredRows: [],
+  xlsxReady: false,
 };
 
 const fileInput = document.getElementById('fileInput');
@@ -13,6 +14,7 @@ const countryFilter = document.getElementById('countryFilter');
 const placementFilter = document.getElementById('placementFilter');
 const exportCsvBtn = document.getElementById('exportCsvBtn');
 const exportJsonBtn = document.getElementById('exportJsonBtn');
+const retryLibBtn = document.getElementById('retryLibBtn');
 const resultBody = document.querySelector('#resultTable tbody');
 const summary = document.getElementById('summary');
 
@@ -21,9 +23,10 @@ const AD_UNIT_HEADERS = ['ad unit', 'adunit', '广告单元', 'ad unit name'];
 const ECPM_HEADERS = ['ecpm', '估算每千次展示收入', 'estimated earnings / 1000 impressions'];
 
 const XLSX_CDNS = [
+  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+  'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js',
   'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js',
   'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
-  'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js',
 ];
 
 fileInput.addEventListener('change', onFileChange);
@@ -31,17 +34,24 @@ countryFilter.addEventListener('change', applyFilters);
 placementFilter.addEventListener('change', applyFilters);
 exportCsvBtn.addEventListener('click', exportCsv);
 exportJsonBtn.addEventListener('click', exportJson);
+retryLibBtn.addEventListener('click', boot);
 
 boot();
 
 async function boot() {
+  retryLibBtn.hidden = true;
+  fileInput.disabled = false;
+  libStatus.textContent = '正在初始化 Excel 解析库...（若失败仍可直接解析 CSV）';
+
   try {
     await ensureXlsxLoaded();
-    fileInput.disabled = false;
-    libStatus.textContent = 'Excel 解析库已加载，可上传文件。';
+    state.xlsxReady = true;
+    libStatus.textContent = 'Excel 解析库已加载，支持 xlsx/xls/csv。';
   } catch (error) {
     console.error(error);
-    libStatus.textContent = 'Excel 解析库加载失败，请检查网络或稍后重试。';
+    state.xlsxReady = false;
+    libStatus.textContent = 'Excel 解析库加载失败：当前可直接解析 CSV；xlsx/xls 请转为 CSV 后上传。';
+    retryLibBtn.hidden = false;
   }
 }
 
@@ -60,41 +70,67 @@ function ensureXlsxLoaded() {
       const script = document.createElement('script');
       script.src = XLSX_CDNS[idx];
       script.async = true;
-      script.onload = () => resolve();
-      script.onerror = () => {
+      script.onload = () => (window.XLSX ? resolve() : next());
+      script.onerror = next;
+      document.head.appendChild(script);
+
+      function next() {
         idx += 1;
         loadNext();
-      };
-      document.head.appendChild(script);
+      }
     };
 
     loadNext();
+
+    setTimeout(() => {
+      if (!window.XLSX) {
+        reject(new Error('XLSX load timeout.'));
+      }
+    }, 7000);
   });
 }
 
 async function onFileChange(event) {
   const file = event.target.files?.[0];
   if (!file) return;
-  if (!window.XLSX) {
-    alert('Excel 解析库未就绪，请稍后再试。');
-    return;
-  }
 
   fileName.textContent = file.name;
+
+  try {
+    const rawRows = await readRows(file);
+    processRows(rawRows);
+  } catch (error) {
+    console.error(error);
+    alert(error.message || '文件解析失败，请检查文件格式。');
+  }
+}
+
+async function readRows(file) {
+  const ext = getFileExt(file.name);
+
+  if (ext === 'csv') {
+    const text = await file.text();
+    return parseCsvToRows(text);
+  }
+
+  if (!state.xlsxReady || !window.XLSX) {
+    throw new Error('当前环境无法加载 Excel 解析库，请将文件另存为 CSV 再上传。');
+  }
+
   const buffer = await file.arrayBuffer();
   const workbook = XLSX.read(buffer, { type: 'array' });
   const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-  const rawRows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+  return XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+}
 
+function processRows(rawRows) {
   if (!rawRows.length) {
-    alert('文件中没有可解析的数据。');
-    return;
+    throw new Error('文件中没有可解析的数据。');
   }
 
   const mapping = resolveColumnMapping(rawRows[0]);
   if (!mapping.country || !mapping.adUnit || !mapping.ecpm) {
-    alert('无法识别必要列：国家、广告单元、eCPM。请检查列名。');
-    return;
+    throw new Error('无法识别必要列：国家、广告单元、eCPM。请检查列名。');
   }
 
   state.allRows = rawRows
@@ -103,8 +139,7 @@ async function onFileChange(event) {
     .sort((a, b) => b.ecpm - a.ecpm);
 
   if (!state.allRows.length) {
-    alert('未找到有效数据，请确认 eCPM 列为数字。');
-    return;
+    throw new Error('未找到有效数据，请确认 eCPM 列为数字。');
   }
 
   setupFilters();
@@ -112,6 +147,64 @@ async function onFileChange(event) {
   summaryPanel.hidden = false;
   resultPanel.hidden = false;
   applyFilters();
+}
+
+function getFileExt(name) {
+  const parts = String(name).toLowerCase().split('.');
+  return parts.length > 1 ? parts.pop() : '';
+}
+
+function parseCsvToRows(text) {
+  const rows = [];
+  const parsed = parseCsv(text);
+  if (!parsed.length) return rows;
+  const headers = parsed[0];
+
+  for (let i = 1; i < parsed.length; i += 1) {
+    const row = {};
+    headers.forEach((header, index) => {
+      row[header] = parsed[i][index] ?? '';
+    });
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+function parseCsv(text) {
+  const out = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text[i];
+    const n = text[i + 1];
+
+    if (c === '"') {
+      if (inQuotes && n === '"') {
+        field += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (c === ',' && !inQuotes) {
+      row.push(field);
+      field = '';
+    } else if ((c === '\n' || c === '\r') && !inQuotes) {
+      if (c === '\r' && n === '\n') i += 1;
+      row.push(field);
+      if (row.length > 1 || row[0] !== '') out.push(row);
+      row = [];
+      field = '';
+    } else {
+      field += c;
+    }
+  }
+
+  row.push(field);
+  if (row.length > 1 || row[0] !== '') out.push(row);
+  return out;
 }
 
 function normalizeHeader(text) {
@@ -297,12 +390,12 @@ function csvSafe(value) {
   return text;
 }
 
-function downloadFile(content, fileName, mimeType) {
+function downloadFile(content, outFileName, mimeType) {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = fileName;
+  link.download = outFileName;
   document.body.appendChild(link);
   link.click();
   link.remove();

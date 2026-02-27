@@ -10,15 +10,19 @@
     <main class="container">
       <h1>AdMob eCPM 分析（按国家 / 广告位）</h1>
       <p class="subtitle">
-        这是纯前端页面：可直接双击 <code>index.html</code> 使用（无需 python3 / Node / 后端服务）。
+        这是纯前端页面：可直接双击 <code>index.html</code> 使用。若 Excel 库加载失败，仍可直接上传 CSV 分析。
       </p>
 
       <section class="panel upload-panel">
-        <label for="fileInput" class="btn primary">选择 Excel 文件</label>
-        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" disabled />
+        <label for="fileInput" class="btn primary">选择 Excel/CSV 文件</label>
+        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
         <span id="fileName" class="file-name">未选择文件</span>
       </section>
-      <p id="libStatus" class="lib-status">正在初始化 Excel 解析库...</p>
+
+      <section class="lib-panel">
+        <p id="libStatus" class="lib-status">正在初始化 Excel 解析库...</p>
+        <button id="retryLibBtn" class="btn" hidden>重试加载 Excel 解析库</button>
+      </section>
 
       <section class="panel controls-panel" id="controlsPanel" hidden>
         <div class="control-group">
