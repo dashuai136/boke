@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AdMob 广告单元国家/广告位分析工具</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <main class="container">
+      <h1>AdMob eCPM 分析（按国家 / 广告位）</h1>
+      <p class="subtitle">
+        上传 AdMob 后台导出的 Excel（按国家、广告单元）后，系统会自动解析广告单元命名规范：
+        <code>产品名_广告位_广告类型_出价高低类型</code>，并按 eCPM 从高到低展示。
+      </p>
+
+      <section class="panel upload-panel">
+        <label for="fileInput" class="btn primary">选择 Excel 文件</label>
+        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+        <span id="fileName" class="file-name">未选择文件</span>
+      </section>
+
+      <section class="panel controls-panel" id="controlsPanel" hidden>
+        <div class="control-group">
+          <label for="countryFilter">国家筛选</label>
+          <select id="countryFilter"></select>
+        </div>
+        <div class="control-group">
+          <label for="placementFilter">广告位筛选</label>
+          <select id="placementFilter"></select>
+        </div>
+        <div class="control-group buttons">
+          <button id="exportCsvBtn" class="btn">导出当前视图 CSV</button>
+          <button id="exportJsonBtn" class="btn">导出结构化 JSON</button>
+        </div>
+      </section>
+
+      <section class="panel" id="summaryPanel" hidden>
+        <h2>汇总信息</h2>
+        <div id="summary"></div>
+      </section>
+
+      <section class="panel" id="resultPanel" hidden>
+        <h2>分析结果</h2>
+        <div class="table-wrapper">
+          <table id="resultTable">
+            <thead>
+              <tr>
+                <th>国家</th>
+                <th>广告位</th>
+                <th>广告单元名称</th>
+                <th>产品名</th>
+                <th>广告类型</th>
+                <th>出价类型</th>
+                <th>eCPM</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel tips">
+        <h2>字段识别说明（V1）</h2>
+        <ul>
+          <li>国家列自动匹配：<code>Country</code> / <code>国家</code> / <code>国家或地区</code>。</li>
+          <li>广告单元列自动匹配：<code>Ad unit</code> / <code>广告单元</code> / <code>Ad Unit</code>。</li>
+          <li>eCPM 列自动匹配：包含 <code>eCPM</code> 或 <code>估算每千次展示收入</code> 的列。</li>
+          <li>广告单元命名按下划线拆分：<code>产品名_广告位_广告类型_出价高低类型</code>。</li>
+        </ul>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
