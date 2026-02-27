@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AdMob 广告单元国家/广告位分析工具</title>
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   </head>
   <body>
     <main class="container">
@@ -17,9 +16,10 @@
 
       <section class="panel upload-panel">
         <label for="fileInput" class="btn primary">选择 Excel 文件</label>
-        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" disabled />
         <span id="fileName" class="file-name">未选择文件</span>
       </section>
+      <p id="libStatus" class="lib-status">正在加载 Excel 解析库...</p>
 
       <section class="panel controls-panel" id="controlsPanel" hidden>
         <div class="control-group">
@@ -59,16 +59,6 @@
             <tbody></tbody>
           </table>
         </div>
-      </section>
-
-      <section class="panel tips">
-        <h2>字段识别说明（V1）</h2>
-        <ul>
-          <li>国家列自动匹配：<code>Country</code> / <code>国家</code> / <code>国家或地区</code>。</li>
-          <li>广告单元列自动匹配：<code>Ad unit</code> / <code>广告单元</code> / <code>Ad Unit</code>。</li>
-          <li>eCPM 列自动匹配：包含 <code>eCPM</code> 或 <code>估算每千次展示收入</code> 的列。</li>
-          <li>广告单元命名按下划线拆分：<code>产品名_广告位_广告类型_出价高低类型</code>。</li>
-        </ul>
       </section>
     </main>
 

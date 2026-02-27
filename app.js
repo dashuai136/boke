@@ -5,6 +5,7 @@ const state = {
 
 const fileInput = document.getElementById('fileInput');
 const fileName = document.getElementById('fileName');
+const libStatus = document.getElementById('libStatus');
 const controlsPanel = document.getElementById('controlsPanel');
 const summaryPanel = document.getElementById('summaryPanel');
 const resultPanel = document.getElementById('resultPanel');
@@ -19,15 +20,65 @@ const COUNTRY_HEADERS = ['country', '国家', '国家或地区', 'country/tier']
 const AD_UNIT_HEADERS = ['ad unit', 'adunit', '广告单元', 'ad unit name'];
 const ECPM_HEADERS = ['ecpm', '估算每千次展示收入', 'estimated earnings / 1000 impressions'];
 
+const XLSX_CDNS = [
+  'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js',
+  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+  'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js',
+];
+
 fileInput.addEventListener('change', onFileChange);
 countryFilter.addEventListener('change', applyFilters);
 placementFilter.addEventListener('change', applyFilters);
 exportCsvBtn.addEventListener('click', exportCsv);
 exportJsonBtn.addEventListener('click', exportJson);
 
+boot();
+
+async function boot() {
+  try {
+    await ensureXlsxLoaded();
+    fileInput.disabled = false;
+    libStatus.textContent = 'Excel 解析库已加载，可上传文件。';
+  } catch (error) {
+    console.error(error);
+    libStatus.textContent = 'Excel 解析库加载失败，请检查网络或稍后重试。';
+  }
+}
+
+function ensureXlsxLoaded() {
+  if (window.XLSX) return Promise.resolve();
+
+  return new Promise((resolve, reject) => {
+    let idx = 0;
+
+    const loadNext = () => {
+      if (idx >= XLSX_CDNS.length) {
+        reject(new Error('All XLSX CDN URLs failed.'));
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = XLSX_CDNS[idx];
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => {
+        idx += 1;
+        loadNext();
+      };
+      document.head.appendChild(script);
+    };
+
+    loadNext();
+  });
+}
+
 async function onFileChange(event) {
   const file = event.target.files?.[0];
   if (!file) return;
+  if (!window.XLSX) {
+    alert('Excel 解析库未就绪，请稍后再试。');
+    return;
+  }
 
   fileName.textContent = file.name;
   const buffer = await file.arrayBuffer();
