@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>昨日新增（{{ day }}）</h2>
+<ul>
+  {% for r in rows %}
+    <li><a href="{{ url_for('species_detail', slug=r.slug) }}">{{ r.scientific_name }}</a> · {{ r.journal_title }}</li>
+  {% else %}
+    <li>暂无新增</li>
+  {% endfor %}
+</ul>
+{% endblock %}

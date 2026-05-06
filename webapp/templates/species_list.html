@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>物种列表</h2>
+<form method="get" class="filters">
+  <input name="q" value="{{ q }}" placeholder="学名/DOI/期刊" />
+  <input name="country" value="{{ country }}" placeholder="国家" />
+  <select name="status">
+    <option value="">全部状态</option>
+    {% for s in ['candidate','provisional','verified','archived'] %}
+      <option value="{{ s }}" {% if status==s %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">筛选</button>
+</form>
+<table>
+  <tr><th>学名</th><th>作者</th><th>期刊</th><th>日期</th><th>国家</th><th>状态</th></tr>
+  {% for it in items %}
+  <tr>
+    <td><a href="{{ url_for('species_detail', slug=it.slug) }}">{{ it.scientific_name }}</a></td>
+    <td>{{ it.authorship }}</td>
+    <td>{{ it.journal_title }}</td>
+    <td>{{ it.published_on }}</td>
+    <td>{{ it.country or '-' }}</td>
+    <td>{{ it.status }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

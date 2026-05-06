@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: begonia-web
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 10000
+      - key: BEGONIA_DB
+        value: /data/begonia.db
+    healthCheckPath: /api/species?page_size=1

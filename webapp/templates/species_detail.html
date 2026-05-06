@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ species.scientific_name }}</h2>
+<p><strong>作者：</strong>{{ species.authorship }}</p>
+<p><strong>DOI：</strong>{{ species.doi or '-' }}</p>
+<p><strong>Section：</strong>{{ species.section_name or '-' }}</p>
+<p><strong>状态：</strong>{{ species.status }}</p>
+<p><strong>摘要：</strong>{{ species.abstract_text or '-' }}</p>
+
+<h3>媒体</h3>
+<ul>
+  {% for m in media %}
+    <li>{{ m.media_role }} · {{ m.display_policy }} · <a href="{{ m.original_url }}" target="_blank">来源链接</a></li>
+  {% else %}
+    <li>暂无</li>
+  {% endfor %}
+</ul>
+
+<h3>来源文献</h3>
+<ul>
+  {% for s in sources %}
+    <li>{{ s.source_name }} · <a href="{{ s.url }}" target="_blank">文章页</a> · <a href="{{ s.pdf_url }}" target="_blank">PDF</a></li>
+  {% else %}
+    <li>暂无</li>
+  {% endfor %}
+</ul>
+
+<h3>分布点</h3>
+<ul>
+  {% for o in occurrences %}
+    <li>{{ o.country }} / {{ o.admin1 }} / {{ o.locality }} ({{ o.geometry_visibility }})</li>
+  {% else %}
+    <li>暂无</li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>后台概览</h2>
+<h3>待审核投稿</h3>
+<table>
+  <tr><th>ID</th><th>名称</th><th>提交者</th><th>状态</th><th>操作</th></tr>
+  {% for s in pending %}
+  <tr>
+    <td>{{ s.id }}</td><td>{{ s.submitted_name }}</td><td>{{ s.submitter_name }}</td><td>{{ s.status }}</td>
+    <td>
+      <form method="post" action="{{ url_for('admin_update_submission', submission_id=s.id) }}">
+        <select name="status">
+          {% for st in ['pending','reviewed','accepted','rejected'] %}
+            <option value="{{ st }}">{{ st }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit">更新</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+    <tr><td colspan="5">无待审核</td></tr>
+  {% endfor %}
+</table>
+
+<h3>最近更新</h3>
+<ul>
+  {% for s in latest %}
+    <li>{{ s.scientific_name }} · {{ s.status }} · {{ s.updated_at }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

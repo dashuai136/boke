@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>提交候选新种</h2>
+{% if ok %}<p class="ok">提交成功，等待审核。</p>{% endif %}
+{% if error %}<p class="err">{{ error }}</p>{% endif %}
+<form method="post" class="submit-form">
+  <input name="name" placeholder="姓名" />
+  <input name="email" placeholder="邮箱" />
+  <input name="submitted_name" placeholder="投稿名称 *" required />
+  <textarea name="evidence_urls" placeholder="证据链接（逗号分隔）"></textarea>
+  <textarea name="message" placeholder="备注"></textarea>
+  <button type="submit">提交</button>
+</form>
+{% endblock %}

@@ -1,0 +1,27 @@
+[Unit]
+Description=Begonia New Species Web Service
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=begonia
+Group=begonia
+WorkingDirectory=/opt/begonia
+Environment=HOST=127.0.0.1
+Environment=PORT=8080
+Environment=BEGONIA_DB=/var/lib/begonia/begonia.db
+ExecStartPre=/usr/bin/python3 /opt/begonia/webapp/init_db.py
+ExecStart=/usr/bin/python3 /opt/begonia/webapp/app.py
+Restart=always
+RestartSec=3
+StandardOutput=append:/var/log/begonia/web.log
+StandardError=append:/var/log/begonia/web.err.log
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/lib/begonia /var/log/begonia
+
+[Install]
+WantedBy=multi-user.target

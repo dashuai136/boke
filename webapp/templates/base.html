@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title or '秋海棠新种数据库' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  </head>
+  <body>
+    <header>
+      <h1>秋海棠新种数据库</h1>
+      <nav>
+        <a href="{{ url_for('home') }}">首页</a>
+        <a href="{{ url_for('species_list') }}">物种列表</a>
+        <a href="{{ url_for('map_page') }}">地图</a>
+        <a href="{{ url_for('daily_updates') }}">昨日新增</a>
+        <a href="{{ url_for('submit_candidate') }}">提交线索</a>
+        <a href="{{ url_for('admin_dashboard') }}">后台</a>
+      </nav>
+    </header>
+    <main>{% block content %}{% endblock %}</main>
+  </body>
+</html>

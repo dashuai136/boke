@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="cards">
+  <div class="card"><div class="k">总记录</div><div class="v">{{ stats.total }}</div></div>
+  <div class="card"><div class="k">已核验</div><div class="v">{{ stats.verified }}</div></div>
+  <div class="card"><div class="k">昨日新增</div><div class="v">{{ stats.yesterday }}</div></div>
+  <div class="card"><div class="k">近7天新增</div><div class="v">{{ stats.week }}</div></div>
+</section>
+<section>
+  <h2>最新记录</h2>
+  <ul>
+    {% for it in latest %}
+      <li><a href="{{ url_for('species_detail', slug=it.slug) }}">{{ it.scientific_name }}</a> · {{ it.journal_title }} · {{ it.published_on }} · {{ it.status }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}
